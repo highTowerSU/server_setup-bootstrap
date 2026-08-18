@@ -1,4 +1,5 @@
 param(
+    [Alias('d')]
     [switch]$DebugBootstrap
 )
 
