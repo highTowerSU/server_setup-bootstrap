@@ -66,7 +66,7 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host 'Starte den Linux-Bootstrap in Debian ...'
 $bootstrap = (Invoke-WebRequest -UseBasicParsing -Uri $LinuxBootstrap).Content
-$bootstrap | & wsl.exe --distribution $Distro -- bash -s
+$bootstrap | & wsl.exe --distribution $Distro -- bash -lc 'cat > /tmp/server-setup-bootstrap.sh; bash /tmp/server-setup-bootstrap.sh </dev/tty'
 if ($LASTEXITCODE -ne 0) {
     throw 'Der Linux-Bootstrap ist fehlgeschlagen.'
 }
