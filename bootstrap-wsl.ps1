@@ -4,6 +4,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$DebugBootstrap = $DebugBootstrap -or ($env:DEBUG_BOOTSTRAP -eq '1')
 
 $Distro = 'Debian'
 $LinuxBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.sh?v=httpsclone'
