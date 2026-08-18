@@ -75,8 +75,8 @@ if ($DebugBootstrap) { Write-Host "DEBUG: wsl.exe -d $Distro -u root -- bash -lc
 if ($LASTEXITCODE -ne 0) {
     throw 'Die Debian-Grundinstallation ist fehlgeschlagen.'
 }
-if ($DebugBootstrap) { Write-Host "DEBUG: wsl.exe -d $Distro -u root -- curl -o /tmp/server-setup-bootstrap.sh $LinuxBootstrap" }
-& wsl.exe --distribution $Distro --user root -- curl -o /tmp/server-setup-bootstrap.sh $LinuxBootstrap
+if ($DebugBootstrap) { Write-Host "DEBUG: wsl.exe -d $Distro -u root -- curl -H Cache-Control:no-cache -o /tmp/server-setup-bootstrap.sh $LinuxBootstrap" }
+& wsl.exe --distribution $Distro --user root -- curl -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' -o /tmp/server-setup-bootstrap.sh $LinuxBootstrap
 if ($LASTEXITCODE -ne 0) {
     throw 'Der Linux-Bootstrap konnte nicht heruntergeladen werden.'
 }
