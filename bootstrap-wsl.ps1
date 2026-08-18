@@ -26,7 +26,8 @@ if ($installed -notcontains $Distro) {
 }
 
 Write-Host 'Starte den Linux-Bootstrap in Debian ...'
-& wsl.exe --distribution $Distro -- bash -lc "curl -fsSL '$LinuxBootstrap' | bash"
+$bootstrap = (Invoke-WebRequest -UseBasicParsing -Uri $LinuxBootstrap).Content
+$bootstrap | & wsl.exe --distribution $Distro -- bash -s
 if ($LASTEXITCODE -ne 0) {
     throw 'Der Linux-Bootstrap ist fehlgeschlagen.'
 }
