@@ -44,12 +44,21 @@ if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":
   if ! bw status 2>/dev/null | grep -q '"status":"authenticated"'; then
     bw login <"${input_device}"
   fi
-  export BW_SESSION="$(bw unlock --raw <"${input_device}")"
+  if ! BW_SESSION="$(bw unlock --raw <"${input_device}")"; then
+    echo "Vaultwarden konnte nicht entsperrt werden. Bitte Masterpasswort und Server-URL prüfen." >&2
+    exit 1
+  fi
+  export BW_SESSION
 fi
 
 if ! gh auth status >/dev/null 2>&1; then
   echo "GitHub-Anmeldung erforderlich."
-  gh auth login --git-protocol ssh <"${input_device}"
+  if [[ -n "${GH_TOKEN:-}" ]]; then
+    printf '%s\n' "${GH_TOKEN}" | gh auth login --with-token --git-protocol https
+    unset GH_TOKEN
+  else
+    gh auth login --git-protocol https <"${input_device}"
+  fi
 fi
 
 if [[ -e "${repo_dir}" && ! -d "${repo_dir}/.git" ]]; then
@@ -58,7 +67,7 @@ if [[ -e "${repo_dir}" && ! -d "${repo_dir}/.git" ]]; then
 fi
 
 if [[ -d "${repo_dir}/.git" ]]; then
-  git -C "${repo_dir}" remote set-url origin "git@github.com:${repo_name}.git"
+  git -C "${repo_dir}" remote set-url origin "https://github.com/${repo_name}.git"
   git -C "${repo_dir}" pull --ff-only
 else
   gh repo clone "${repo_name}" "${repo_dir}"
