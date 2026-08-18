@@ -19,6 +19,24 @@ sudo apt-get install -y \
   openssh-client \
   ca-certificates
 
+if ! command -v bw >/dev/null 2>&1; then
+  sudo apt-get install -y nodejs npm
+  sudo npm install --global @bitwarden/cli
+fi
+
+if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":"unlocked"'; then
+  echo
+  echo "Vaultwarden/Bitwarden wird für SSH-Authorized-Keys benötigt."
+  read -r -p "Vaultwarden-Server-URL (leer für Bitwarden Cloud): " vaultwarden_url </dev/tty
+  if [[ -n "${vaultwarden_url}" ]]; then
+    bw config server "${vaultwarden_url}"
+  fi
+  if ! bw status 2>/dev/null | grep -q '"status":"authenticated"'; then
+    bw login </dev/tty
+  fi
+  export BW_SESSION="$(bw unlock --raw </dev/tty)"
+fi
+
 if ! gh auth status >/dev/null 2>&1; then
   echo "GitHub-Anmeldung erforderlich."
   gh auth login --git-protocol ssh </dev/tty
