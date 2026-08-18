@@ -17,11 +17,16 @@ sudo apt-get install -y \
   python3-venv \
   pipx \
   openssh-client \
-  ca-certificates
+  ca-certificates \
+  curl
 
 if ! command -v bw >/dev/null 2>&1; then
-  sudo apt-get install -y nodejs npm
-  sudo npm install --global @bitwarden/cli
+  bw_url="$(curl -fsSL 'https://api.github.com/repos/bitwarden/clients/releases?per_page=20' | python3 -c 'import json,sys; releases=json.load(sys.stdin); print(next(asset["browser_download_url"] for release in releases if release.get("tag_name", "").startswith("cli-") for asset in release.get("assets", []) if asset["name"].startswith("bw-linux-") and asset["name"].endswith(".zip")))')"
+  tmp_dir="$(mktemp -d)"
+  trap 'rm -rf "${tmp_dir}"' EXIT
+  curl -fsSL "${bw_url}" -o "${tmp_dir}/bw.zip"
+  python3 -c 'import sys,zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])' "${tmp_dir}/bw.zip" "${tmp_dir}"
+  sudo install -m 0755 "${tmp_dir}/bw" /usr/local/bin/bw
 fi
 
 if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":"unlocked"'; then
