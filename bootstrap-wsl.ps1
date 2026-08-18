@@ -3,6 +3,9 @@ $ErrorActionPreference = 'Stop'
 $Distro = 'Debian'
 $LinuxBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.sh'
 $WindowsBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.ps1'
+$LinuxUser = $env:USERNAME.ToLower() -replace '[^a-z0-9_-]', '-'
+if ($LinuxUser -notmatch '^[a-z_]') { $LinuxUser = "u-$LinuxUser" }
+$LinuxUser = $LinuxUser.Substring(0, [Math]::Min($LinuxUser.Length, 32))
 
 Write-Host 'Prüfe WSL und Debian ...'
 
@@ -39,9 +42,25 @@ if ($LASTEXITCODE -ne 0) {
 $installed = @(& wsl.exe --list --quiet 2>$null | ForEach-Object { $_.Trim() -replace '^\*\s*', '' })
 if ($installed -notcontains $Distro) {
     Write-Host "Installiere ${Distro} ..."
-    & wsl.exe --install --distribution $Distro
+    & wsl.exe --install --distribution $Distro --no-launch
     if ($LASTEXITCODE -ne 0) {
         throw "${Distro} konnte nicht installiert werden. Bitte PowerShell als Administrator starten."
+    }
+}
+
+$null = & wsl.exe --distribution $Distro --user root -- getent passwd $LinuxUser 2>$null
+if ($LASTEXITCODE -ne 0) {
+    $password = Read-Host "Passwort für den Linux-Benutzer ${LinuxUser}" -AsSecureString
+    $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($password)
+    try {
+        $passwordText = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
+    } finally {
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+    }
+    Write-Host "Richte Debian-Benutzer ${LinuxUser} ein ..."
+    "$LinuxUser`n$passwordText`n$passwordText`n" | & wsl.exe --distribution $Distro
+    if ($LASTEXITCODE -ne 0) {
+        throw "Der Debian-Benutzer ${LinuxUser} konnte nicht eingerichtet werden."
     }
 }
 
