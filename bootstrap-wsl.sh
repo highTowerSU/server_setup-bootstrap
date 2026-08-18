@@ -37,25 +37,28 @@ fi
 if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":"unlocked"'; then
   echo
   echo "Vaultwarden/Bitwarden wird für SSH-Authorized-Keys benötigt."
-  vaultwarden_url="${VAULTWARDEN_URL:-https://pass.koenigsbl.au}"
-  vaultwarden_user="${VAULTWARDEN_USER:-server-setup@koenigsbl.au}"
-  read -r -p "Vaultwarden-Server-URL [${vaultwarden_url}]: " vaultwarden_override <"${input_device}"
-  if [[ -n "${vaultwarden_override}" ]]; then
-    vaultwarden_url="${vaultwarden_override}"
-  fi
-  bw logout >/dev/null 2>&1 || true
-  bw config server "${vaultwarden_url}"
-  if bw status 2>/dev/null | grep -q '"status":"authenticated"'; then
-    if ! BW_SESSION="$(bw unlock --raw <"${input_device}")"; then
-      echo "Vaultwarden konnte nicht entsperrt werden. Bitte Masterpasswort prüfen." >&2
-      exit 1
+  while true; do
+    vaultwarden_url="${VAULTWARDEN_URL:-https://pass.koenigsbl.au}"
+    vaultwarden_user="${VAULTWARDEN_USER:-server-setup@koenigsbl.au}"
+    read -r -p "Vaultwarden-Server-URL [${vaultwarden_url}]: " vaultwarden_override <"${input_device}"
+    if [[ -n "${vaultwarden_override}" ]]; then
+      vaultwarden_url="${vaultwarden_override}"
     fi
-  else
-    if ! BW_SESSION="$(bw login "${vaultwarden_user}" --raw <"${input_device}")"; then
-      echo "Vaultwarden-Anmeldung fehlgeschlagen." >&2
-      exit 1
+    echo "Vaultwarden-URL: ${vaultwarden_url}"
+    bw logout >/dev/null 2>&1 || true
+    if ! bw config server "${vaultwarden_url}"; then
+      echo "Vaultwarden-Server konnte nicht konfiguriert werden. Erneuter Versuch."
+      continue
     fi
-  fi
+    if bw status 2>/dev/null | grep -q '"status":"authenticated"'; then
+      if BW_SESSION="$(bw unlock --raw <"${input_device}")"; then
+        break
+      fi
+    elif BW_SESSION="$(bw login "${vaultwarden_user}" --raw <"${input_device}")"; then
+      break
+    fi
+    echo "Vaultwarden-Anmeldung/Unlock fehlgeschlagen. Bitte erneut versuchen."
+  done
   export BW_SESSION
 
   github_vaultwarden_item="${GITHUB_VAULTWARDEN_ITEM:-github-server-setup-token}"

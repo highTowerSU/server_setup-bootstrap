@@ -69,6 +69,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host 'Starte den Linux-Bootstrap in Debian ...'
+Write-Host "Linux-Bootstrap-URL: $LinuxBootstrap"
 $sudoersCommand = "printf '%s\n' '$LinuxUser ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/server-setup-bootstrap; chmod 0440 /etc/sudoers.d/server-setup-bootstrap; apt-get update; apt-get install -y curl ca-certificates"
 if ($DebugBootstrap) { Write-Host "DEBUG: wsl.exe -d $Distro -u root -- bash -lc <sudoers/apt command>" }
 & wsl.exe --distribution $Distro --user root -- bash -lc $sudoersCommand
