@@ -76,6 +76,7 @@ if ! gh auth status >/dev/null 2>&1; then
     gh auth login --git-protocol https <"${input_device}"
   fi
 fi
+gh config set git_protocol https
 
 if [[ -e "${repo_dir}" && ! -d "${repo_dir}/.git" ]]; then
   echo "${repo_dir} existiert bereits, ist aber kein Git-Repository." >&2
