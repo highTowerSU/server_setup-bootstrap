@@ -49,6 +49,12 @@ if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":
     exit 1
   fi
   export BW_SESSION
+
+  github_vaultwarden_item="${GITHUB_VAULTWARDEN_ITEM:-github-server-setup-token}"
+  github_token="$(bw get password "${github_vaultwarden_item}" --session "${BW_SESSION}" 2>/dev/null || true)"
+  if [[ -n "${github_token}" ]]; then
+    export GH_TOKEN="${github_token}"
+  fi
 fi
 
 if ! gh auth status >/dev/null 2>&1; then
