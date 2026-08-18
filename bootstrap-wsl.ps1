@@ -58,7 +58,7 @@ if ($LASTEXITCODE -ne 0) {
         [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
     }
     Write-Host "Richte Debian-Benutzer ${LinuxUser} ein ..."
-    "$LinuxUser`n$passwordText`n$passwordText`n" | & wsl.exe --distribution $Distro
+    "$LinuxUser`n$passwordText`n$passwordText" | & wsl.exe --distribution $Distro
     if ($LASTEXITCODE -ne 0) {
         throw "Der Debian-Benutzer ${LinuxUser} konnte nicht eingerichtet werden."
     }
