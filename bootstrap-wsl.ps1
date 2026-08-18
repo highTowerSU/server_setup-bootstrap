@@ -13,12 +13,12 @@ if ($LASTEXITCODE -ne 0) {
     if (-not $admin) {
         Write-Host 'Für die erstmalige WSL-Installation werden Administratorrechte benötigt.'
         $command = "Invoke-Expression (Invoke-WebRequest -UseBasicParsing -Uri '$WindowsBootstrap').Content"
-        Start-Process powershell.exe -Verb RunAs -Wait -ArgumentList @(
+        $elevated = Start-Process powershell.exe -Verb RunAs -PassThru -Wait -ArgumentList @(
             '-NoProfile',
             '-ExecutionPolicy', 'Bypass',
             '-Command', $command
         )
-        exit $LASTEXITCODE
+        exit $elevated.ExitCode
     }
     Write-Host 'WSL ist noch nicht aktiviert. Installiere WSL und Debian.'
     & wsl.exe --install --distribution $Distro
