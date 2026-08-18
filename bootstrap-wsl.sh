@@ -88,7 +88,8 @@ if [[ -d "${repo_dir}/.git" ]]; then
   git -C "${repo_dir}" remote set-url origin "https://github.com/${repo_name}.git"
   git -C "${repo_dir}" pull --ff-only
 else
-  gh repo clone "${repo_name}" "${repo_dir}"
+  gh auth setup-git
+  git clone "https://github.com/${repo_name}.git" "${repo_dir}"
 fi
 
 export PATH="${HOME}/.local/bin:${PATH}"
