@@ -38,6 +38,7 @@ if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":
   echo
   echo "Vaultwarden/Bitwarden wird für SSH-Authorized-Keys benötigt."
   vaultwarden_url="${VAULTWARDEN_URL:-https://pass.koenigsbl.au}"
+  vaultwarden_user="${VAULTWARDEN_USER:-server-setup@koenigsbl.au}"
   read -r -p "Vaultwarden-Server-URL [${vaultwarden_url}]: " vaultwarden_override <"${input_device}"
   if [[ -n "${vaultwarden_override}" ]]; then
     vaultwarden_url="${vaultwarden_override}"
@@ -49,7 +50,7 @@ if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":
       exit 1
     fi
   else
-    if ! BW_SESSION="$(bw login --raw <"${input_device}")"; then
+    if ! BW_SESSION="$(bw login "${vaultwarden_user}" --raw <"${input_device}")"; then
       echo "Vaultwarden-Anmeldung fehlgeschlagen." >&2
       exit 1
     fi
