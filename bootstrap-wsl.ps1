@@ -5,8 +5,8 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $Distro = 'Debian'
-$LinuxBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.sh?v=3d05948'
-$WindowsBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.ps1?v=3d05948'
+$LinuxBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.sh?v=fix608'
+$WindowsBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.ps1?v=fix608'
 $LinuxUser = $env:USERNAME.ToLower() -replace '[^a-z0-9_-]', '-'
 if ($LinuxUser -notmatch '^[a-z_]') { $LinuxUser = "u-$LinuxUser" }
 $LinuxUser = $LinuxUser.Substring(0, [Math]::Min($LinuxUser.Length, 32))
