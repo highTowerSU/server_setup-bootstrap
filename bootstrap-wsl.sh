@@ -4,9 +4,14 @@ set -Eeuo pipefail
 repo_dir="${HOME}/server_setup"
 repo_name="highTowerSU/server_setup"
 is_wsl=false
+input_device=/dev/stdin
 
 if grep -qi microsoft /proc/version 2>/dev/null; then
   is_wsl=true
+fi
+
+if [[ -r /dev/tty ]]; then
+  input_device=/dev/tty
 fi
 
 sudo apt-get update
@@ -32,19 +37,19 @@ fi
 if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":"unlocked"'; then
   echo
   echo "Vaultwarden/Bitwarden wird für SSH-Authorized-Keys benötigt."
-  read -r -p "Vaultwarden-Server-URL (leer für Bitwarden Cloud): " vaultwarden_url </dev/tty
+  read -r -p "Vaultwarden-Server-URL (leer für Bitwarden Cloud): " vaultwarden_url <"${input_device}"
   if [[ -n "${vaultwarden_url}" ]]; then
     bw config server "${vaultwarden_url}"
   fi
   if ! bw status 2>/dev/null | grep -q '"status":"authenticated"'; then
-    bw login </dev/tty
+    bw login <"${input_device}"
   fi
-  export BW_SESSION="$(bw unlock --raw </dev/tty)"
+  export BW_SESSION="$(bw unlock --raw <"${input_device}")"
 fi
 
 if ! gh auth status >/dev/null 2>&1; then
   echo "GitHub-Anmeldung erforderlich."
-  gh auth login --git-protocol ssh </dev/tty
+  gh auth login --git-protocol ssh <"${input_device}"
 fi
 
 if [[ -e "${repo_dir}" && ! -d "${repo_dir}/.git" ]]; then
@@ -71,7 +76,7 @@ cd "${repo_dir}"
 ansible-galaxy collection install -r requirements.yml
 
 if [[ "${is_wsl}" == true ]]; then
-  ansible-playbook --ask-become-pass -i inventory/wsl.yml playbooks/guests.yml </dev/tty
+  ansible-playbook --ask-become-pass -i inventory/wsl.yml playbooks/guests.yml <"${input_device}"
 else
   echo
   echo "Ansible ist installiert. Für diesen Server als Nächstes ausführen:"
