@@ -43,10 +43,8 @@ if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":
   if [[ -n "${vaultwarden_override}" ]]; then
     vaultwarden_url="${vaultwarden_override}"
   fi
-  if ! bw config server "${vaultwarden_url}" >/dev/null 2>&1; then
-    bw logout >/dev/null 2>&1 || true
-    bw config server "${vaultwarden_url}"
-  fi
+  bw logout >/dev/null 2>&1 || true
+  bw config server "${vaultwarden_url}"
   if bw status 2>/dev/null | grep -q '"status":"authenticated"'; then
     if ! BW_SESSION="$(bw unlock --raw <"${input_device}")"; then
       echo "Vaultwarden konnte nicht entsperrt werden. Bitte Masterpasswort prüfen." >&2
