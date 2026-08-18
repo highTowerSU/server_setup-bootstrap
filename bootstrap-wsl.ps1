@@ -70,7 +70,7 @@ $sudoersCommand = "printf '%s\n' '$LinuxUser ALL=(ALL) NOPASSWD: ALL' > /etc/sud
 if ($LASTEXITCODE -ne 0) {
     throw 'Die Debian-Grundinstallation ist fehlgeschlagen.'
 }
-& wsl.exe --distribution $Distro --user root -- curl -fsSL $LinuxBootstrap -o /tmp/server-setup-bootstrap.sh
+& wsl.exe --distribution $Distro --user root -- curl -o /tmp/server-setup-bootstrap.sh $LinuxBootstrap
 if ($LASTEXITCODE -ne 0) {
     throw 'Der Linux-Bootstrap konnte nicht heruntergeladen werden.'
 }
