@@ -3,10 +3,10 @@ set -Eeuo pipefail
 
 repo_dir="${HOME}/server_setup"
 repo_name="highTowerSU/server_setup"
+is_wsl=false
 
-if ! grep -qi microsoft /proc/version 2>/dev/null; then
-  echo "Dieses Skript ist für WSL gedacht." >&2
-  exit 1
+if grep -qi microsoft /proc/version 2>/dev/null; then
+  is_wsl=true
 fi
 
 sudo apt-get update
@@ -46,4 +46,11 @@ pipx inject ansible-core requests >/dev/null
 
 cd "${repo_dir}"
 ansible-galaxy collection install -r requirements.yml
-ansible-playbook -i inventory/wsl.yml playbooks/guests.yml
+
+if [[ "${is_wsl}" == true ]]; then
+  ansible-playbook -i inventory/wsl.yml playbooks/guests.yml
+else
+  echo
+  echo "Ansible ist installiert. Für diesen Server als Nächstes ausführen:"
+  echo "  ansible-playbook -i inventory/hosts.yml site.yml --check --diff"
+fi
