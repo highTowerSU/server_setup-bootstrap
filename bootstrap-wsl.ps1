@@ -80,7 +80,7 @@ if ($DebugBootstrap) { Write-Host "DEBUG: wsl.exe -d $Distro -u root -- curl -o 
 if ($LASTEXITCODE -ne 0) {
     throw 'Der Linux-Bootstrap konnte nicht heruntergeladen werden.'
 }
-$runCommand = "chmod 0755 /tmp/server-setup-bootstrap.sh; bash /tmp/server-setup-bootstrap.sh"
+$runCommand = "bash /tmp/server-setup-bootstrap.sh"
 if ($DebugBootstrap) { Write-Host "DEBUG: wsl.exe -d $Distro -u $LinuxUser -- bash -lc <bootstrap>" }
 & wsl.exe --distribution $Distro --user $LinuxUser -- bash -lc $runCommand
 if ($LASTEXITCODE -ne 0) {
