@@ -65,7 +65,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host 'Starte den Linux-Bootstrap in Debian ...'
-$linuxCommand = "set -e; printf '%s\n' '$LinuxUser ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/server-setup-bootstrap; chmod 0440 /etc/sudoers.d/server-setup-bootstrap; apt-get update; apt-get install -y curl ca-certificates; su - '$LinuxUser' -c `"curl -fsSL '$LinuxBootstrap' -o /tmp/server-setup-bootstrap.sh && bash /tmp/server-setup-bootstrap.sh`""
+$linuxCommand = "set -e; printf '%s\n' '$LinuxUser ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/server-setup-bootstrap; chmod 0440 /etc/sudoers.d/server-setup-bootstrap; apt-get update; apt-get install -y curl ca-certificates; printf '%s\n' '#!/bin/sh' 'curl -fsSL $LinuxBootstrap -o /tmp/server-setup-bootstrap.sh && bash /tmp/server-setup-bootstrap.sh' > /tmp/server-setup-run.sh; chmod 0755 /tmp/server-setup-run.sh; su - '$LinuxUser' -c /tmp/server-setup-run.sh"
 & wsl.exe --distribution $Distro --user root -- bash -lc $linuxCommand
 if ($LASTEXITCODE -ne 0) {
     throw 'Der Linux-Bootstrap ist fehlgeschlagen.'
