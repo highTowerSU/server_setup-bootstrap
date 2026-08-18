@@ -10,7 +10,7 @@ if grep -qi microsoft /proc/version 2>/dev/null; then
   is_wsl=true
 fi
 
-if [[ -r /dev/tty ]]; then
+if [[ -r /dev/tty && -t /dev/tty ]]; then
   input_device=/dev/tty
 fi
 
