@@ -41,12 +41,16 @@ if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":
   if [[ -n "${vaultwarden_url}" ]]; then
     bw config server "${vaultwarden_url}"
   fi
-  if ! bw status 2>/dev/null | grep -q '"status":"authenticated"'; then
-    bw login <"${input_device}"
-  fi
-  if ! BW_SESSION="$(bw unlock --raw <"${input_device}")"; then
-    echo "Vaultwarden konnte nicht entsperrt werden. Bitte Masterpasswort und Server-URL prüfen." >&2
-    exit 1
+  if bw status 2>/dev/null | grep -q '"status":"authenticated"'; then
+    if ! BW_SESSION="$(bw unlock --raw <"${input_device}")"; then
+      echo "Vaultwarden konnte nicht entsperrt werden. Bitte Masterpasswort prüfen." >&2
+      exit 1
+    fi
+  else
+    if ! BW_SESSION="$(bw login --raw <"${input_device}")"; then
+      echo "Vaultwarden-Anmeldung fehlgeschlagen." >&2
+      exit 1
+    fi
   fi
   export BW_SESSION
 
