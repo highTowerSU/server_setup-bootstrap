@@ -9,6 +9,13 @@ PowerShell:
 irm https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.ps1 | iex
 ```
 
+Falls die Pipeline-Ausführung durch eine Unternehmensrichtlinie blockiert
+wird, stattdessen aus `cmd.exe` mit einer temporären Datei starten:
+
+```bat
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$p=Join-Path $env:TEMP 'bootstrap-wsl.ps1'; Invoke-WebRequest -UseBasicParsing https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.ps1 -OutFile $p; powershell.exe -NoProfile -ExecutionPolicy Bypass -File $p"
+```
+
 `cmd.exe`:
 
 ```bat

@@ -6,18 +6,25 @@ $WindowsBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-
 
 Write-Host 'Prüfe WSL und Debian ...'
 
-$null = & wsl.exe --status 2>&1
+$statusOutput = @(& wsl.exe --status 2>&1)
+if ($statusOutput) {
+    Write-Host ($statusOutput -join [Environment]::NewLine)
+}
 if ($LASTEXITCODE -ne 0) {
     $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     $admin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
     if (-not $admin) {
         Write-Host 'Für die erstmalige WSL-Installation werden Administratorrechte benötigt.'
         $command = "Invoke-Expression (Invoke-WebRequest -UseBasicParsing -Uri '$WindowsBootstrap').Content"
-        $elevated = Start-Process powershell.exe -Verb RunAs -PassThru -Wait -ArgumentList @(
-            '-NoProfile',
-            '-ExecutionPolicy', 'Bypass',
-            '-Command', $command
-        )
+        try {
+            $elevated = Start-Process powershell.exe -Verb RunAs -PassThru -Wait -ArgumentList @(
+                '-NoProfile',
+                '-ExecutionPolicy', 'Bypass',
+                '-Command', $command
+            )
+        } catch {
+            throw "UAC-Erhöhung konnte nicht gestartet werden: $($_.Exception.Message)"
+        }
         exit $elevated.ExitCode
     }
     Write-Host 'WSL ist noch nicht aktiviert. Installiere WSL und Debian.'
