@@ -2,11 +2,24 @@ $ErrorActionPreference = 'Stop'
 
 $Distro = 'Debian'
 $LinuxBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.sh'
+$WindowsBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.ps1'
 
 Write-Host 'Prüfe WSL und Debian ...'
 
 $null = & wsl.exe --status 2>&1
 if ($LASTEXITCODE -ne 0) {
+    $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    $admin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if (-not $admin) {
+        Write-Host 'Für die erstmalige WSL-Installation werden Administratorrechte benötigt.'
+        $command = "Invoke-Expression (Invoke-WebRequest -UseBasicParsing -Uri '$WindowsBootstrap').Content"
+        Start-Process powershell.exe -Verb RunAs -Wait -ArgumentList @(
+            '-NoProfile',
+            '-ExecutionPolicy', 'Bypass',
+            '-Command', $command
+        )
+        exit $LASTEXITCODE
+    }
     Write-Host 'WSL ist noch nicht aktiviert. Installiere WSL und Debian.'
     & wsl.exe --install --distribution $Distro
     if ($LASTEXITCODE -ne 0) {
