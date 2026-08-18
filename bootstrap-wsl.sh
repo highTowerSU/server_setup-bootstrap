@@ -37,10 +37,12 @@ fi
 if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":"unlocked"'; then
   echo
   echo "Vaultwarden/Bitwarden wird für SSH-Authorized-Keys benötigt."
-  read -r -p "Vaultwarden-Server-URL (leer für Bitwarden Cloud): " vaultwarden_url <"${input_device}"
-  if [[ -n "${vaultwarden_url}" ]]; then
-    bw config server "${vaultwarden_url}"
+  vaultwarden_url="${VAULTWARDEN_URL:-https://pass.koenigsbl.au}"
+  read -r -p "Vaultwarden-Server-URL [${vaultwarden_url}]: " vaultwarden_override <"${input_device}"
+  if [[ -n "${vaultwarden_override}" ]]; then
+    vaultwarden_url="${vaultwarden_override}"
   fi
+  bw config server "${vaultwarden_url}"
   if bw status 2>/dev/null | grep -q '"status":"authenticated"'; then
     if ! BW_SESSION="$(bw unlock --raw <"${input_device}")"; then
       echo "Vaultwarden konnte nicht entsperrt werden. Bitte Masterpasswort prüfen." >&2
