@@ -104,7 +104,7 @@ cd "${repo_dir}"
 ansible-galaxy collection install -r requirements.yml
 
 if [[ "${is_wsl}" == true ]]; then
-  ansible-playbook --ask-become-pass -i inventory/wsl.yml playbooks/guests.yml <"${input_device}"
+  ansible-playbook --ask-become-pass -i inventory/wsl.yml playbooks/wsl.yml <"${input_device}"
 else
   echo
   echo "Ansible ist installiert. Für diesen Server als Nächstes ausführen:"
