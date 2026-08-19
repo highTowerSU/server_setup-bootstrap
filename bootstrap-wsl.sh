@@ -62,7 +62,7 @@ if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":
     fi
     echo "Vaultwarden-URL: ${vaultwarden_url}"
     bw_status="$(bw status 2>/dev/null || true)"
-    if printf '%s' "${bw_status}" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"(locked|unlocked)"'; then
+    if printf '%s' "${bw_status}" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"(authenticated|locked|unlocked)"'; then
       if BW_SESSION="$(bw unlock --raw <"${input_device}")"; then
         break
       fi
