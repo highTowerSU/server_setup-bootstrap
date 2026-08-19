@@ -106,7 +106,20 @@ ansible-galaxy collection install -r requirements.yml
 if [[ "${is_wsl}" == true ]]; then
   ansible-playbook --ask-become-pass -i inventory/wsl.yml playbooks/wsl.yml <"${input_device}"
 else
-  echo
-  echo "Ansible ist installiert. Für diesen Server als Nächstes ausführen:"
-  echo "  ansible-playbook -i inventory/hosts.yml site.yml --check --diff"
+  inventory_file="$(mktemp)"
+  cleanup_inventory() {
+    rm -f "${inventory_file}"
+  }
+  trap cleanup_inventory EXIT
+  cat >"${inventory_file}" <<'YAML'
+all:
+  children:
+    guests:
+      children:
+        lxc_guests:
+          hosts:
+            lxc_local:
+              ansible_connection: local
+YAML
+  ansible-playbook --ask-become-pass -i "${inventory_file}" playbooks/guests.yml
 fi
