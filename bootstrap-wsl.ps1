@@ -13,6 +13,35 @@ $LinuxUser = $env:USERNAME.ToLower() -replace '[^a-z0-9_-]', '-'
 if ($LinuxUser -notmatch '^[a-z_]') { $LinuxUser = "u-$LinuxUser" }
 $LinuxUser = $LinuxUser.Substring(0, [Math]::Min($LinuxUser.Length, 32))
 
+function Add-WindowsTerminalZshProfile {
+    $settingsCandidates = @(
+        (Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json'),
+        (Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe\LocalState\settings.json'),
+        (Join-Path $env:LOCALAPPDATA 'Microsoft\Windows Terminal\settings.json')
+    )
+    $settingsPath = $settingsCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+    if (-not $settingsPath) {
+        Write-Host 'Windows Terminal nicht gefunden; Profil wird beim nächsten Start manuell benötigt.'
+        return
+    }
+    $settings = Get-Content -Raw -LiteralPath $settingsPath
+    if ($settings -match '"name"\s*:\s*"Debian \(ZSH\)"') {
+        Write-Host 'Windows-Terminal-Profil Debian (ZSH) ist bereits vorhanden.'
+        return
+    }
+    $profilesIndex = $settings.IndexOf('"profiles"')
+    $listIndex = $settings.IndexOf('"list"', $profilesIndex)
+    $arrayIndex = $settings.IndexOf('[', $listIndex)
+    if ($profilesIndex -lt 0 -or $listIndex -lt 0 -or $arrayIndex -lt 0) {
+        Write-Warning "Windows-Terminal-Konfiguration konnte nicht erweitert werden: $settingsPath"
+        return
+    }
+    $profile = "`r`n      {`r`n        `"name`": `"Debian (ZSH)`",`r`n        `"commandline`": `"wsl.exe -d Debian -u $LinuxUser --cd ~ -e zsh -l`",`r`n        `"startingDirectory`": `"//wsl.localhost/Debian/home/$LinuxUser`"`r`n      },"
+    $settings = $settings.Insert($arrayIndex + 1, $profile)
+    Set-Content -LiteralPath $settingsPath -Value $settings -Encoding utf8
+    Write-Host "Windows-Terminal-Profil Debian (ZSH) angelegt: $settingsPath"
+}
+
 Write-Host 'Prüfe WSL und Debian ...'
 
 $statusOutput = @(& wsl.exe --status 2>&1)
@@ -53,6 +82,8 @@ if ($installed -notcontains $Distro) {
         throw "${Distro} konnte nicht installiert werden. Bitte PowerShell als Administrator starten."
     }
 }
+
+Add-WindowsTerminalZshProfile
 
 $null = & wsl.exe --distribution $Distro --user root -- getent passwd $LinuxUser 2>$null
 if ($LASTEXITCODE -ne 0) {
