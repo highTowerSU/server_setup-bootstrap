@@ -6,6 +6,14 @@ repo_name="highTowerSU/server_setup"
 is_wsl=false
 input_device=/dev/stdin
 
+if [[ "${EUID}" -eq 0 ]]; then
+  sudo_cmd=()
+else
+  sudo_cmd=(sudo)
+fi
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+
 if grep -qi microsoft /proc/version 2>/dev/null; then
   is_wsl=true
 fi
@@ -14,8 +22,8 @@ if [[ -r /dev/tty && -t /dev/tty ]]; then
   input_device=/dev/tty
 fi
 
-sudo apt-get update
-sudo apt-get install -y \
+"${sudo_cmd[@]}" apt-get update
+"${sudo_cmd[@]}" apt-get install -y \
   git \
   gh \
   python3 \
@@ -31,7 +39,7 @@ if ! command -v bw >/dev/null 2>&1; then
   trap 'rm -rf "${tmp_dir}"' EXIT
   curl -fsSL "${bw_url}" -o "${tmp_dir}/bw.zip"
   python3 -c 'import sys,zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])' "${tmp_dir}/bw.zip" "${tmp_dir}"
-  sudo install -m 0755 "${tmp_dir}/bw" /usr/local/bin/bw
+  "${sudo_cmd[@]}" install -m 0755 "${tmp_dir}/bw" /usr/local/bin/bw
 fi
 
 if command -v bw >/dev/null 2>&1 && ! bw status 2>/dev/null | grep -q '"status":"unlocked"'; then
