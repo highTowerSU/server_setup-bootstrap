@@ -129,5 +129,9 @@ all:
             lxc_local:
               ansible_connection: local
 YAML
-  ansible-playbook --ask-become-pass -i "${inventory_file}" playbooks/guests.yml
+  if [[ "${EUID}" -eq 0 ]]; then
+    ansible-playbook -i "${inventory_file}" playbooks/guests.yml
+  else
+    ansible-playbook --ask-become-pass -i "${inventory_file}" playbooks/guests.yml
+  fi
 fi
