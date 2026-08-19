@@ -40,6 +40,7 @@ fi
   openssh-client \
   ca-certificates \
   curl
+"${sudo_cmd[@]}" apt-get upgrade -y
 
 if ! command -v bw >/dev/null 2>&1; then
   bw_url="$(curl -fsSL 'https://api.github.com/repos/bitwarden/clients/releases?per_page=20' | python3 -c 'import json,sys; releases=json.load(sys.stdin); print(next(asset["browser_download_url"] for release in releases if release.get("tag_name", "").startswith("cli-") for asset in release.get("assets", []) if asset["name"].startswith("bw-linux-") and asset["name"].endswith(".zip")))')"
