@@ -114,7 +114,7 @@ ansible-galaxy collection install -r requirements.yml
 if [[ "${is_wsl}" == true ]]; then
   ansible-playbook --ask-become-pass -i inventory/wsl.yml playbooks/wsl.yml <"${input_device}"
 else
-  inventory_file="$(mktemp)"
+  inventory_file="$(mktemp --suffix=.yml)"
   cleanup_inventory() {
     rm -f "${inventory_file}"
   }
