@@ -7,8 +7,8 @@ $ErrorActionPreference = 'Stop'
 $DebugBootstrap = $DebugBootstrap -or ($env:DEBUG_BOOTSTRAP -eq '1')
 
 $Distro = 'Debian'
-$LinuxBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.sh?v=httpsclone'
-$WindowsBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.ps1?v=httpsclone'
+$LinuxBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.sh?v=3ab78f4'
+$WindowsBootstrap = 'https://raw.githubusercontent.com/highTowerSU/server_setup-bootstrap/main/bootstrap-wsl.ps1?v=3ab78f4'
 $LinuxUser = $env:USERNAME.ToLower() -replace '[^a-z0-9_-]', '-'
 if ($LinuxUser -notmatch '^[a-z_]') { $LinuxUser = "u-$LinuxUser" }
 $LinuxUser = $LinuxUser.Substring(0, [Math]::Min($LinuxUser.Length, 32))
